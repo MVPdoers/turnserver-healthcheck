@@ -14,10 +14,12 @@ const port = process.env.SERVER_PORT || 3000;
 const whitelist = process.env.TURNSERVER_WHITELIST;
 
 app.get('/', async (req, res) => {
-  const url = req.query.url as string | null;
+  const oUrl = req.query.url as string | null;
   const username = req.query.username as string | null;
   const credential = req.query.credential as string | null;
   const format = req.query.format as string | null || 'json';
+
+  const url = decodeURIComponent(oUrl);
 
   if (format !== 'json' && format !== 'flag' && format !== 'http-status') {
     return sendJSONResponse(res, 400, {
@@ -67,10 +69,12 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/', async (req, res) => {
-  const url = req.body.url as string | null;
-  const username = req.body.username as string | null;
-  const credential = req.body.credential as string | null;
-  const format = req.body.format as string | null || 'json';
+  const oUrl = req.query.url as string | null;
+  const username = req.query.username as string | null;
+  const credential = req.query.credential as string | null;
+  const format = req.query.format as string | null || 'json';
+
+  const url = decodeURIComponent(oUrl);
 
   if (format !== 'json' && format !== 'flag' && format !== 'http-status') {
     return sendJSONResponse(res, 400, {
