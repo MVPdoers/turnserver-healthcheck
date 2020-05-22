@@ -75,6 +75,7 @@ app.post('/', async (req, res) => {
   const format = req.query.format as string | null || 'json';
 
   const url = decodeURIComponent(oUrl);
+  console.log(url, oUrl);
 
   if (format !== 'json' && format !== 'flag' && format !== 'http-status') {
     return sendJSONResponse(res, 400, {
