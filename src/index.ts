@@ -1,8 +1,14 @@
 import express from "express";
+import bodyParser from "body-parser";
 import {logger} from "./logging";
 import {isTurnServerAvailable} from "./turnserver-check";
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
 const port = process.env.SERVER_PORT || 3000;
 
 const whitelist = process.env.TURNSERVER_WHITELIST;
@@ -12,6 +18,36 @@ app.get('/', async (req, res) => {
   const username = req.query.username as string | null;
   const credential = req.query.credential as string | null;
   const format = req.query.format as string | null || 'json';
+
+  return handle({
+    url,
+    username,
+    credential,
+    format,
+    res
+  })
+});
+
+app.post('/', async (req, res) => {
+  const url = req.body.url as string | null;
+  const username = req.body.username as string | null;
+  const credential = req.body.credential as string | null;
+  const format = req.body.format as string | null || 'json';
+
+  return handle({
+    url,
+    username,
+    credential,
+    format,
+    res
+  })
+});
+
+// Start server
+app.listen(port, () => logger.log('info', `Server started at port ${port}`));
+
+function handle(data: { url?: string, username?: string, credential?: string, format?: string, res: any }) {
+  let {url, username, credential, format, res} = data;
 
   if (format !== 'json' && format !== 'flag' && format !== 'http-status') {
     return sendJSONResponse(res, 400, {
@@ -58,10 +94,7 @@ app.get('/', async (req, res) => {
     default:
       throw Error('Unknown format!');
   }
-});
-
-// Start server
-app.listen(port, () => logger.log('info', `Server started at port ${port}`));
+}
 
 function sendJSONResponse(res: any, status: number, json: any) {
   res.statusCode = status;
